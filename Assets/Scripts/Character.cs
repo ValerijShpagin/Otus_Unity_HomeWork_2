@@ -107,7 +107,8 @@ public class Character : MonoBehaviour
     bool RunTowards(Vector3 targetPosition, float distanceFromTarget)
     {
         Vector3 distance = targetPosition - transform.position;
-        if (distance.magnitude < 0.00001f) {
+        if (distance.magnitude < 0.00001f) 
+        {
             transform.position = targetPosition;
             return true;
         }
@@ -119,7 +120,8 @@ public class Character : MonoBehaviour
         distance = (targetPosition - transform.position);
 
         Vector3 step = direction * runSpeed;
-        if (step.magnitude < distance.magnitude) {
+        if (step.magnitude < distance.magnitude) 
+        {
             transform.position += step;
             return false;
         }
@@ -130,7 +132,8 @@ public class Character : MonoBehaviour
 
     void FixedUpdate()
     {
-        switch (state) {
+        switch (state) 
+        {
             case State.Idle:
                 transform.rotation = originalRotation;
                 animator.SetFloat(Speed, 0.0f);

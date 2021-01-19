@@ -1,18 +1,35 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 internal sealed class GameController : MonoBehaviour
 {
+    [Header("Buttons")]
     public Button attackButton;
-    public CanvasGroup buttonPanel;
+    public Button mainMenuBack;
+    public Button resultButton;
     
+    [Header("CanvasGroup")]
+    public CanvasGroup buttonPanel;
+    public CanvasGroup menuSettingsCanvasGroup;
+    public CanvasGroup resultPanel;
+    
+    [Header("Characters")]
     public Character[] playerCharacter;
     public Character[] enemyCharacter;
+    
+    [Header("Text")]
+    public TextMeshProUGUI resultText;
+    
     Character currentTarget;
     bool waitingForInput;
+    private Scene n_scene;
+    private string nameScene;
 
     Character FirstAliveCharacter(Character[] characters)
     {
@@ -21,12 +38,14 @@ internal sealed class GameController : MonoBehaviour
 
     void PlayerWon()
     {
-        Debug.Log("Player won.");
+        resultText.text = "Player won.";
+        Utility.SetCanvasGroupEnabled(resultPanel, true);
     }
 
     void PlayerLost()
     {
-        Debug.Log("Player lost.");
+        resultText.text = "Player lost.";
+        Utility.SetCanvasGroupEnabled(resultPanel, true);
     }
 
     bool CheckEndGame()
@@ -71,6 +90,11 @@ internal sealed class GameController : MonoBehaviour
         while (!CheckEndGame()) {
             foreach (var player in playerCharacter)
             {
+                if (player.IsDead())
+                {
+                    continue;
+                }
+                
                 currentTarget = FirstAliveCharacter(enemyCharacter);
                 if (currentTarget == null)
                     break;
@@ -96,6 +120,11 @@ internal sealed class GameController : MonoBehaviour
 
             foreach (var enemy in enemyCharacter)
             {
+                if(enemy.IsDead())
+                {
+                    continue;
+                }
+                
                 Character target = FirstAliveCharacter(playerCharacter);
                 if (target == null)
                     break;
@@ -110,11 +139,40 @@ internal sealed class GameController : MonoBehaviour
             }
         }
     }
-    
+
+    public void LoadSettingsMenu()
+    {
+        Utility.SetCanvasGroupEnabled(menuSettingsCanvasGroup, true);
+        Utility.SetCanvasGroupEnabled(buttonPanel, false);
+    }
+
+    public void ContinueButton()
+    {
+        Utility.SetCanvasGroupEnabled(menuSettingsCanvasGroup, false);
+        Utility.SetCanvasGroupEnabled(buttonPanel, true);
+    }
+
+    public void RestartLevelButton()
+    {
+        SceneManager.LoadScene(nameScene);
+    }
+
+    public void BackToMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
+
+
     void Start()
     {
+        n_scene = SceneManager.GetActiveScene();
+        nameScene = n_scene.name;
+        mainMenuBack.onClick.AddListener(BackToMainMenu);
         attackButton.onClick.AddListener(PlayerAttack);
+        resultButton.onClick.AddListener(BackToMainMenu);
         Utility.SetCanvasGroupEnabled(buttonPanel, false);
+        Utility.SetCanvasGroupEnabled(menuSettingsCanvasGroup, false);
+        Utility.SetCanvasGroupEnabled(resultPanel, false);
         StartCoroutine(GameLoop());
     }
 }
